@@ -1,0 +1,696 @@
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>
+
+</title>
+<link href="App_Themes/main/main.css" type="text/css" rel="stylesheet" /></head>
+<body>
+    <form method="post" action="Excel.aspx.html" id="form1">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="iNYP28+isf7ICKyRBiMQ9lQ1m8/OLZpef9EXA8ZiOyy/arTzoWNJgHCuMCmXAF4M7bfJvrx6BfmM4kburrY4URzueI/LFPjPbmdcSW+JJcc=" />
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="62840884" />
+        <div id="advertBar">
+            <div id="advrts">
+                
+
+<script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Zint -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-3977262762912035"
+     data-ad-slot="3699954642"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+            </div>
+        </div>
+        <div id="wrapper"> <div id="header" class="content">
+                <div id="logo1"><img src="_images/website/zint.png" height="150px" /></div>
+                <div id="logo2"><img src="_images/website/okapi.png" height="150px" /></div>
+            </div>
+            <div id="menu" class="content">
+                
+<ul>
+    <li><a href="Default.aspx.html">Home</a></li>
+    <li><a href="Versions.aspx.html">Archive</a></li>
+    <li><a href="Manual.aspx-type=p&amp;page=1.html">Manual</a></li>
+    <li><a href="Excel.aspx.html">Excel</a></li>
+    <li><a href="Extras.aspx.html">Extras</a></li>
+</ul>
+
+            </div>
+            <div class="content">
+            
+    <h1>Zint in Excel</h1>
+    <p>
+    The following instructions allow you to generate barcodes from data held in a Microsoft Excel workbook by using a locally installed copy of the Zint barcode encoder. This is not a complete solution and doesn't work for all symbologies, but provides a quick "rough-and-ready" way of getting the job done if you need to produce lots of barcodes from data in a spreadsheet.
+</p>
+    <h2>To enable the Developer tab</h2>
+    <ol>
+        <li>On the File tab, choose Options to open the Options dialog box.</li>
+        <li>Click Customize Ribbon on the left side of the dialog box.</li>
+        <li>Under Choose commands from on the left side of the dialog box, select Popular Commands.</li>
+        <li>Under Customize the Ribbon on the right side of the dialog box, select Main Tabs in the drop-down list box, and then select the Developer checkbox.</li>
+        <li>Click OK.</li>
+    </ol>
+<h2>To create the BARCODE function</h2>	
+    <ol>
+        <li>On the Developer tab, choose Visual Basic to open the Visual Basic editor.</li>
+        <li>On the Insert menu select Module.</li>
+        <li>Copy the code at the bottom of this page into the editor window.</li>
+        <li>Adjust the value of pathToZint to reflect the location of the Zint binary on your computer.</li>
+        <li>On the File menu choose Save.</li>
+        <li>In the Save As dialog change Save as type to Excel Macro-Enabled Workbook.</li>
+        <li>Enter a suitable file name and click Save.</li>
+        <li>On the File menu choose Close and Return to Microsoft Excel.</li>
+        <li></li>
+    </ol>
+    <h2>
+To create a barcode in a worksheet
+    </h2>
+    <ol>
+        <li>Select the cell in which you wish the barcode to appear.</li>
+        <li>Click Insert Function and select the category User Defined.</li>
+        <li>Select the appropriate function for the type of barcode you would like to include, e.g. BARCODE_CODE128 for a Code 128 symbol, and click OK.
+</li>
+        <li>In the Content field select the data which you want to be encoded in the barcode.</li>
+        <li>Click OK. The barcode will be inserted into the worksheet.</li>
+    </ol>
+
+    <h2>The Code</h2>
+    <pre>
+        Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As LongPtr)
+
+            ' A set of simple functions for creating barcodes in Microsoft Excel using the Zint barcode library
+            ' Written by Robin Stuart in 2017, Based on code by Massimo Pini
+            ' You are free to alter and distribute this code in any way and by any means
+            ' Absolutely no guarantees or warranties whatsoever - this is a hack!
+            ' No true type fonts were abused in the making of this product
+
+            Private Function insertBarcode(Content As String, Symbology As Integer)
+            Dim pathToZint As String
+            Dim pathToTempDir As String
+            Dim callString As String
+            Dim shapeName As String
+            Dim symbolShape As Shape
+    
+            ' Adjust this to the directory which holds the Zint binary file
+            pathToZint = "C:\Program Files\Zint"
+    
+            ' Adjust this if necessary to change where the temporary file is stored
+            pathToTempDir = pathToZint
+
+            shapeName = "BARCODE_" & Application.Caller.Address
+    
+            For Each symbolShape In ActiveSheet.Shapes
+                If symbolShape.Name = shapeName Then
+                    symbolShape.Delete
+                End If
+            Next symbolShape
+
+            callString = pathToZint & "\zint.exe -b " & Symbology & " -o " & pathToTempDir & "\excel_temp.svg -d " & Chr(34) & Content & Chr(34)
+    
+            Call Shell(callString, 0)
+            Sleep (100)
+
+            Set symbol = ActiveSheet.Pictures.Insert(pathToTempDir & "\excel_temp.svg")
+    
+            With symbol
+                .Left = Range(Application.Caller.Address).Left
+                .Top = Range(Application.Caller.Address).Top
+                .Height = Range(Application.Caller.Address).Height
+                .Placement = 1
+                .PrintObject = 1
+                .Name = shapeName
+            End With
+    
+            Kill (pathToTempDir & "\excel_temp.svg")
+            insertBarcode = ""
+    End Function
+
+    ' Below are declarations for each symbology - they were created automatically, some of them don't work.
+
+    ' Code 11
+    Function BARCODE_CODE11(Content As String)
+        BARCODE_CODE11 = insertBarcode(Content, 1)
+    End Function
+
+
+    ' Standard Code 2 of 5
+    Function BARCODE_C25MATRIX(Content As String)
+        BARCODE_C25MATRIX = insertBarcode(Content, 2)
+    End Function
+
+
+    ' Interleaved 2 of 5
+    Function BARCODE_C25INTER(Content As String)
+        BARCODE_C25INTER = insertBarcode(Content, 3)
+    End Function
+
+
+    ' Code 2 of 5 IATA
+    Function BARCODE_C25IATA(Content As String)
+        BARCODE_C25IATA = insertBarcode(Content, 4)
+    End Function
+
+
+    ' Code 2 of 5 Data Logic
+    Function BARCODE_C25LOGIC(Content As String)
+        BARCODE_C25LOGIC = insertBarcode(Content, 6)
+    End Function
+
+
+    ' Code 2 of 5 Industrial
+    Function BARCODE_C25IND(Content As String)
+        BARCODE_C25IND = insertBarcode(Content, 7)
+    End Function
+
+
+    ' Code 3 of 9 (Code 39)
+    Function BARCODE_CODE39(Content As String)
+        BARCODE_CODE39 = insertBarcode(Content, 8)
+    End Function
+
+
+    ' Extended Code 3 of 9 (Code 39+)
+    Function BARCODE_EXCODE39(Content As String)
+        BARCODE_EXCODE39 = insertBarcode(Content, 9)
+    End Function
+
+
+    ' EAN
+    Function BARCODE_EANX(Content As String)
+        BARCODE_EANX = insertBarcode(Content, 13)
+    End Function
+
+
+    ' EAN + Check Digit
+    Function BARCODE_EANX_CHK(Content As String)
+        BARCODE_EANX_CHK = insertBarcode(Content, 14)
+    End Function
+
+
+    ' GS1-128 (UCC.EAN-128)
+    Function BARCODE_EAN128(Content As String)
+        BARCODE_EAN128 = insertBarcode(Content, 16)
+    End Function
+
+
+    ' Codabar
+    Function BARCODE_CODABAR(Content As String)
+        BARCODE_CODABAR = insertBarcode(Content, 18)
+    End Function
+
+
+    ' Code 128 (automatic subset switching)
+    Function BARCODE_CODE128(Content As String)
+        BARCODE_CODE128 = insertBarcode(Content, 20)
+    End Function
+
+
+    ' Deutshe Post Leitcode
+    Function BARCODE_DPLEIT(Content As String)
+        BARCODE_DPLEIT = insertBarcode(Content, 21)
+    End Function
+
+
+    ' Deutshe Post Identcode
+    Function BARCODE_DPIDENT(Content As String)
+        BARCODE_DPIDENT = insertBarcode(Content, 22)
+    End Function
+
+
+    ' Code 16K
+    Function BARCODE_CODE16K(Content As String)
+        BARCODE_CODE16K = insertBarcode(Content, 23)
+    End Function
+
+
+    ' Code 49
+    Function BARCODE_CODE49(Content As String)
+        BARCODE_CODE49 = insertBarcode(Content, 24)
+    End Function
+
+
+    ' Code 93
+    Function BARCODE_CODE93(Content As String)
+        BARCODE_CODE93 = insertBarcode(Content, 25)
+    End Function
+
+
+    ' Flattermarken
+    Function BARCODE_FLAT(Content As String)
+        BARCODE_FLAT = insertBarcode(Content, 28)
+    End Function
+
+
+    ' GS1 DataBar-14
+    Function BARCODE_RSS14(Content As String)
+        BARCODE_RSS14 = insertBarcode(Content, 29)
+    End Function
+
+
+    ' GS1 DataBar Limited
+    Function BARCODE_RSS_LTD(Content As String)
+        BARCODE_RSS_LTD = insertBarcode(Content, 30)
+    End Function
+
+
+    ' GS1 DataBar Extended
+    Function BARCODE_RSS_EXP(Content As String)
+        BARCODE_RSS_EXP = insertBarcode(Content, 31)
+    End Function
+
+
+    ' Telepen Alpha
+    Function BARCODE_TELEPEN(Content As String)
+        BARCODE_TELEPEN = insertBarcode(Content, 32)
+    End Function
+
+
+    ' UPC A
+    Function BARCODE_UPCA(Content As String)
+        BARCODE_UPCA = insertBarcode(Content, 34)
+    End Function
+
+
+    ' UPC A + Check Digit
+    Function BARCODE_UPCA_CHK(Content As String)
+        BARCODE_UPCA_CHK = insertBarcode(Content, 35)
+    End Function
+
+
+    ' UPC E
+    Function BARCODE_UPCE(Content As String)
+        BARCODE_UPCE = insertBarcode(Content, 37)
+    End Function
+
+
+    ' UPC E + Check Digit
+    Function BARCODE_UPCE_CHK(Content As String)
+        BARCODE_UPCE_CHK = insertBarcode(Content, 38)
+    End Function
+
+
+    ' PostNet
+    Function BARCODE_POSTNET(Content As String)
+        BARCODE_POSTNET = insertBarcode(Content, 40)
+    End Function
+
+
+    ' MSI Plessey
+    Function BARCODE_MSI_PLESSEY(Content As String)
+        BARCODE_MSI_PLESSEY = insertBarcode(Content, 47)
+    End Function
+
+
+    ' FIM
+    Function BARCODE_FIM(Content As String)
+        BARCODE_FIM = insertBarcode(Content, 49)
+    End Function
+
+
+    ' LOGMARS
+    Function BARCODE_LOGMARS(Content As String)
+        BARCODE_LOGMARS = insertBarcode(Content, 50)
+    End Function
+
+
+    ' Pharmacode One-Track
+    Function BARCODE_PHARMA(Content As String)
+        BARCODE_PHARMA = insertBarcode(Content, 51)
+    End Function
+
+
+    ' PZN
+    Function BARCODE_PZN(Content As String)
+        BARCODE_PZN = insertBarcode(Content, 52)
+    End Function
+
+
+    ' Pharmacode Two-Track
+    Function BARCODE_PHARMA_TWO(Content As String)
+        BARCODE_PHARMA_TWO = insertBarcode(Content, 53)
+    End Function
+
+
+    ' PDF417
+    Function BARCODE_PDF417(Content As String)
+        BARCODE_PDF417 = insertBarcode(Content, 55)
+    End Function
+
+
+    ' PDF417 Truncated
+    Function BARCODE_PDF417TRUNC(Content As String)
+        BARCODE_PDF417TRUNC = insertBarcode(Content, 56)
+    End Function
+
+
+    ' Maxicode
+    Function BARCODE_MAXICODE(Content As String)
+        BARCODE_MAXICODE = insertBarcode(Content, 57)
+    End Function
+
+
+    ' QR Code
+    Function BARCODE_QRCODE(Content As String)
+        BARCODE_QRCODE = insertBarcode(Content, 58)
+    End Function
+
+
+    ' Code 128 (Subset B)
+    Function BARCODE_CODE128B(Content As String)
+        BARCODE_CODE128B = insertBarcode(Content, 60)
+    End Function
+
+
+    ' Australia Post Standard Customer
+    Function BARCODE_AUSPOST(Content As String)
+        BARCODE_AUSPOST = insertBarcode(Content, 63)
+    End Function
+
+
+    ' Australia Post Reply Paid
+    Function BARCODE_AUSREPLY(Content As String)
+        BARCODE_AUSREPLY = insertBarcode(Content, 66)
+    End Function
+
+
+    ' Australia Post Routing
+    Function BARCODE_AUSROUTE(Content As String)
+        BARCODE_AUSROUTE = insertBarcode(Content, 67)
+    End Function
+
+
+    ' Australia Post Redirection
+    Function BARCODE_AUSREDIRECT(Content As String)
+        BARCODE_AUSREDIRECT = insertBarcode(Content, 68)
+    End Function
+
+
+    ' ISBN (EAN-13 with verification stage)
+    Function BARCODE_ISBNX(Content As String)
+        BARCODE_ISBNX = insertBarcode(Content, 69)
+    End Function
+
+
+    ' Royal Mail 4 State (RM4SCC)
+    Function BARCODE_RM4SCC(Content As String)
+        BARCODE_RM4SCC = insertBarcode(Content, 70)
+    End Function
+
+
+    ' Data Matrix ECC200
+    Function BARCODE_DATAMATRIX(Content As String)
+        BARCODE_DATAMATRIX = insertBarcode(Content, 71)
+    End Function
+
+
+    ' EAN-14
+    Function BARCODE_EAN14(Content As String)
+        BARCODE_EAN14 = insertBarcode(Content, 72)
+    End Function
+
+
+    ' Codablock-F
+    Function BARCODE_CODABLOCKF(Content As String)
+        BARCODE_CODABLOCKF = insertBarcode(Content, 74)
+    End Function
+
+
+    ' NVE-18
+    Function BARCODE_NVE18(Content As String)
+        BARCODE_NVE18 = insertBarcode(Content, 75)
+    End Function
+
+
+    ' Japanese Postal Code
+    Function BARCODE_JAPANPOST(Content As String)
+        BARCODE_JAPANPOST = insertBarcode(Content, 76)
+    End Function
+
+
+    ' Korea Post
+    Function BARCODE_KOREAPOST(Content As String)
+        BARCODE_KOREAPOST = insertBarcode(Content, 77)
+    End Function
+
+
+    ' GS1 DataBar-14 Stacked
+    Function BARCODE_RSS14STACK(Content As String)
+        BARCODE_RSS14STACK = insertBarcode(Content, 79)
+    End Function
+
+
+    ' GS1 DataBar-14 Stacked Omnidirectional
+    Function BARCODE_RSS14STACK_OMNI(Content As String)
+        BARCODE_RSS14STACK_OMNI = insertBarcode(Content, 80)
+    End Function
+
+
+    ' GS1 DataBar Expanded Stacked
+    Function BARCODE_RSS_EXPSTACK(Content As String)
+        BARCODE_RSS_EXPSTACK = insertBarcode(Content, 81)
+    End Function
+
+
+    ' PLANET
+    Function BARCODE_PLANET(Content As String)
+        BARCODE_PLANET = insertBarcode(Content, 82)
+    End Function
+
+
+    ' MicroPDF417
+    Function BARCODE_MICROPDF417(Content As String)
+        BARCODE_MICROPDF417 = insertBarcode(Content, 84)
+    End Function
+
+
+    ' USPS OneCode
+    Function BARCODE_ONECODE(Content As String)
+        BARCODE_ONECODE = insertBarcode(Content, 85)
+    End Function
+
+
+    ' Plessey Code
+    Function BARCODE_PLESSEY(Content As String)
+        BARCODE_PLESSEY = insertBarcode(Content, 86)
+    End Function
+
+
+    ' Telepen Numeric
+    Function BARCODE_TELEPEN_NUM(Content As String)
+        BARCODE_TELEPEN_NUM = insertBarcode(Content, 87)
+    End Function
+
+
+    ' ITF-14
+    Function BARCODE_ITF14(Content As String)
+        BARCODE_ITF14 = insertBarcode(Content, 89)
+    End Function
+
+
+    ' Dutch Post KIX Code
+    Function BARCODE_KIX(Content As String)
+        BARCODE_KIX = insertBarcode(Content, 90)
+    End Function
+
+
+    ' Aztec Code
+    Function BARCODE_AZTEC(Content As String)
+        BARCODE_AZTEC = insertBarcode(Content, 92)
+    End Function
+
+
+    ' DAFT Code
+    Function BARCODE_DAFT(Content As String)
+        BARCODE_DAFT = insertBarcode(Content, 93)
+    End Function
+
+
+    ' Micro QR Code
+    Function BARCODE_MICROQR(Content As String)
+        BARCODE_MICROQR = insertBarcode(Content, 97)
+    End Function
+
+
+    ' HIBC Code 128
+    Function BARCODE_HIBC_128(Content As String)
+        BARCODE_HIBC_128 = insertBarcode(Content, 98)
+    End Function
+
+
+    ' HIBC Code 39
+    Function BARCODE_HIBC_39(Content As String)
+        BARCODE_HIBC_39 = insertBarcode(Content, 99)
+    End Function
+
+
+    ' HIBC Data Matrix ECC200
+    Function BARCODE_HIBC_DM(Content As String)
+        BARCODE_HIBC_DM = insertBarcode(Content, 102)
+    End Function
+
+
+    ' HIBC QR Code
+    Function BARCODE_HIBC_QR(Content As String)
+        BARCODE_HIBC_QR = insertBarcode(Content, 104)
+    End Function
+
+
+    ' HIBC PDF417
+    Function BARCODE_HIBC_PDF(Content As String)
+        BARCODE_HIBC_PDF = insertBarcode(Content, 106)
+    End Function
+
+
+    ' HIBC MicroPDF417
+    Function BARCODE_HIBC_MICPDF(Content As String)
+        BARCODE_HIBC_MICPDF = insertBarcode(Content, 108)
+    End Function
+
+
+    ' HIBC Aztec Code
+    Function BARCODE_HIBC_AZTEC(Content As String)
+        BARCODE_HIBC_AZTEC = insertBarcode(Content, 112)
+    End Function
+
+
+    ' DotCode
+    Function BARCODE_DOTCODE(Content As String)
+        BARCODE_DOTCODE = insertBarcode(Content, 115)
+    End Function
+
+
+    ' Han Xin (Chinese Sensible) Code
+    Function BARCODE_HANXIN(Content As String)
+        BARCODE_HANXIN = insertBarcode(Content, 116)
+    End Function
+
+
+    ' Aztec Runes
+    Function BARCODE_AZRUNE(Content As String)
+        BARCODE_AZRUNE = insertBarcode(Content, 128)
+    End Function
+
+
+    ' Royal Mail 4-state Mailmark
+    Function BARCODE_MAILMARK(Content As String)
+        BARCODE_MAILMARK = insertBarcode(Content, 121)
+    End Function
+
+
+    ' Code 32
+    Function BARCODE_CODE32(Content As String)
+        BARCODE_CODE32 = insertBarcode(Content, 129)
+    End Function
+
+
+    ' Composite Symbol with EAN linear component
+    Function BARCODE_EANX_CC(Content As String)
+        BARCODE_EANX_CC = insertBarcode(Content, 130)
+    End Function
+
+
+    ' Composite Symbol with GS1-128 linear component
+    Function BARCODE_EAN128_CC(Content As String)
+        BARCODE_EAN128_CC = insertBarcode(Content, 131)
+    End Function
+
+
+    ' Composite Symbol with GS1 DataBar-14 linear component
+    Function BARCODE_RSS14_CC(Content As String)
+        BARCODE_RSS14_CC = insertBarcode(Content, 132)
+    End Function
+
+
+    ' Composite Symbol with GS1 DataBar Limited component
+    Function BARCODE_RSS_LTD_CC(Content As String)
+        BARCODE_RSS_LTD_CC = insertBarcode(Content, 133)
+    End Function
+
+
+    ' Composite Symbol with GS1 DataBar Extended component
+    Function BARCODE_RSS_EXP_CC(Content As String)
+        BARCODE_RSS_EXP_CC = insertBarcode(Content, 134)
+    End Function
+
+
+    ' Composite Symbol with UPC A linear component
+    Function BARCODE_UPCA_CC(Content As String)
+        BARCODE_UPCA_CC = insertBarcode(Content, 135)
+    End Function
+
+
+    ' Composite Symbol with UPC E linear component
+    Function BARCODE_UPCE_CC(Content As String)
+        BARCODE_UPCE_CC = insertBarcode(Content, 136)
+    End Function
+
+
+    ' Composite Symbol with GS1 DataBar-14 Stacked component
+    Function BARCODE_RSS14STACK_CC(Content As String)
+        BARCODE_RSS14STACK_CC = insertBarcode(Content, 137)
+    End Function
+
+
+    ' Composite Symbol with GS1 DataBar-14 Stacked Omnidirectional component
+    Function BARCODE_RSS14_OMNI_CC(Content As String)
+        BARCODE_RSS14_OMNI_CC = insertBarcode(Content, 138)
+    End Function
+
+
+    ' Composite Symbol with GS1 DataBar Expanded Stacked component
+    Function BARCODE_RSS_EXPSTACK_CC(Content As String)
+        BARCODE_RSS_EXPSTACK_CC = insertBarcode(Content, 139)
+    End Function
+
+
+    ' Channel Code
+    Function BARCODE_CHANNEL(Content As String)
+        BARCODE_CHANNEL = insertBarcode(Content, 140)
+    End Function
+
+
+    ' Code One
+    Function BARCODE_CODEONE(Content As String)
+        BARCODE_CODEONE = insertBarcode(Content, 141)
+    End Function
+
+
+    ' Grid Matrix
+    Function BARCODE_GRIDMATRIX(Content As String)
+        BARCODE_GRIDMATRIX = insertBarcode(Content, 142)
+    End Function
+
+
+    ' UPNQR (Univerzalni Placilni Nalog QR)
+    Function BARCODE_UPNQR(Content As String)
+        BARCODE_UPNQR = insertBarcode(Content, 143)
+    End Function
+    </pre>
+</div>
+            <div id="push"></div>
+        </div>
+        <div id="footer" class="content">
+            <p>
+            &copy; Robin Stuart 2008 - 2019<br />
+            Website Last Update: 18/2/2018</p>
+        </div>
+    </form>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-7752710-17', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

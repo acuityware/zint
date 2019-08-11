@@ -1,0 +1,210 @@
+* {
+	margin: 0;
+}
+html, body, form {
+	height: 100%;
+    font-family:Arial;
+}
+
+p {
+    padding:7px 0;
+}
+
+table tr {
+    vertical-align:top;
+}
+
+td p {
+    padding:0;
+}
+
+
+
+#header {
+    height:160px;
+    border-bottom:2px solid #0000FF;
+}
+
+#logo1 {
+    float:left;
+    padding:5px;
+}
+
+#advertBar {
+    position:fixed;
+    height:90px;
+    width:100%;
+    overflow-x:hidden;
+    overflow-y:hidden;
+}
+
+#advrts {
+    width:728px;
+    margin:0 auto;
+}
+
+#logo2 {
+    float:right;
+    padding:5px;
+}
+
+#menu {
+    height:30px;
+    padding-top:12px;
+}
+
+    #menu ul {
+        list-style:none;
+        display:inline;
+    }
+
+        #menu ul li {
+            float:left;
+            padding-right:2px;
+        }
+
+            #menu ul li:first-child {
+                padding-left:2px;
+            }
+
+
+            #menu ul li a {
+                border:1px solid #000000;
+                background-color:#0000FF;
+                text-decoration:none;
+                text-transform:uppercase;
+                font-weight:bold;
+                color:#FFFFFF;
+                border-radius:5px;
+                padding:5px;
+
+            }
+
+                #menu ul li a:hover {
+                    background-color:#00ddff;
+                }
+
+.toc {
+    width:25%;
+    float:left; 
+}
+
+    .toc a{
+        text-decoration:none;
+        color:#000000;
+        font-weight:bold;
+        font-size:14px;
+    }
+
+        .toc a:hover {
+            color:#0000FF;
+        }
+
+    .toc h1 {
+        font-size:18px;
+        border-bottom:2px solid #0000FF;
+        text-transform:uppercase;
+    }
+
+.sec {
+    list-style-type:decimal-leading-zero;
+}
+
+.app {
+        list-style-type:upper-alpha;
+    }
+
+#manualPage {
+    float:right;
+    width:74%;
+}
+
+#wrapper {
+    padding-top:90px;
+	min-height: 100%;
+	margin: 0 auto -80px;
+}
+
+#footer, #push {
+	height: 78px; 
+    text-align:center;
+    border-top:2px solid #0000FF;
+}
+
+.twocol {
+    -webkit-column-count: 2; /* Chrome, Safari, Opera */
+    -moz-column-count: 2; /* Firefox */
+    column-count:2;
+}
+
+.indent {
+    list-style:none;
+}
+
+.zTable {
+    width:100%;
+    border-spacing:0px;
+    border-bottom:1px solid #000000;
+}
+
+.zTable th{
+    border-top:1px solid #000000;
+    border-right:1px solid #000000;
+}
+
+    .zTable th:first-of-type {
+        border-top:none;
+    }
+
+.zTable td {
+    border-top:1px solid #000000;
+    border-right:1px solid #000000;
+}
+
+    .zTable td:first-of-type {
+        border-left:1px solid #000000;
+    }
+
+.literal {
+    font-family:'Courier New';
+}
+
+.csharpcode {
+	color: black; font-family: Consolas, "Courier New", Courier, Monospace; font-size: small; background-color: rgb(255, 255, 255);
+}
+.csharpcode pre {
+	color: black; font-family: Consolas, "Courier New", Courier, Monospace; font-size: small; background-color: rgb(255, 255, 255);
+}
+.csharpcode pre {
+	margin: 0em;
+}
+.csharpcode .rem {
+	color: rgb(0, 128, 0);
+}
+.csharpcode .kwrd {
+	color: rgb(0, 0, 255);
+}
+.csharpcode .str {
+	color: rgb(163, 21, 21);
+}
+.csharpcode .op {
+	color: rgb(0, 0, 192);
+}
+.csharpcode .preproc {
+	color: rgb(204, 102, 51);
+}
+.csharpcode .asp {
+	background-color: rgb(255, 255, 0);
+}
+.csharpcode .html {
+	color: rgb(128, 0, 0);
+}
+.csharpcode .attr {
+	color: rgb(255, 0, 0);
+}
+.csharpcode .alt {
+	margin: 0em; width: 100%; background-color: rgb(244, 244, 244);
+}
+.csharpcode .lnum {
+	color: rgb(96, 96, 96);
+}
